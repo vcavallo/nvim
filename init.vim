@@ -33,7 +33,7 @@ Plug 'junegunn/limelight.vim'
 Plug 'alok/notational-fzf-vim'
 Plug 'fiatjaf/neuron.vim'
 Plug 'vimwiki/vimwiki'
-Plug 'junegunn/fzf'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'pgdouyon/vim-yin-yang'
@@ -60,9 +60,9 @@ let g:fzf_command_prefix = 'Fzf'
 let g:fzf_preview_window = 'right:60%'
 
 nnoremap <leader>ff :FzfFiles<return>
-:nmap <C-P> :FzfFiles<return>
-nnoremap <leader>fa :FzfAg<return>
-nnoremap <leader>fr :FzfRg<return>
+nmap <C-P> :FzfFiles!<return>
+nnoremap <leader>fa :FzfAg!<return>
+nnoremap <leader>fr :FzfRg!<return>
 nnoremap <leader>fg :FzfGFiles<return>
 nnoremap <leader>fb :FzfBuffers<return>
 nnoremap <leader>ft :FzfTags<return>
@@ -322,8 +322,6 @@ nmap <Leader>wo <Plug>VimwikiIndex
 let g:syntastic_mode_map={ 'mode': 'active',
                       \ 'active_filetypes': [],
                       \ 'passive_filetypes': ['html'] }
-
-set shell=/bin/bash\ -l
 
 " autosave on lost focus "
 autocmd BufLeave,FocusLost * silent! wall
