@@ -369,6 +369,8 @@ set nocursorline
 
 "allow backspacing over everything in insert mode
 set backspace=indent,eol,start
+" ctrl-backspace over entire word in insert mode
+imap <C-BS> <C-W>
 
 "store lots of :cmdline history
 set history=1000
@@ -458,6 +460,10 @@ nnoremap <silent> <C-Space> :call CocActionAsync('doHover')<cr>
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
+
+" automatically select first item
+inoremap <silent><expr> <c-y> pumvisible() ? coc#_select_confirm() : "\<c-y>"
+
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
