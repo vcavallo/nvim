@@ -267,13 +267,25 @@ autocmd FileType go nmap <leader>t :GoTest<CR>
 autocmd FileType go nmap <leader>s :GoTestFunc<CR>
 autocmd FileType go nmap <leader>g :GoFmt<CR>
 
-let g:go_def_mode='gopls'
-let g:go_info_mode='gopls'
+" let g:go_gopls_enabled = 0
+" since the above is off, COC will handle these
+" let g:go_gopls_options = ['-remote=auto']
+" let g:go_referrers_mode = 'gopls'
+" let g:go_def_mode='gopls'
+" let g:go_info_mode='gopls'
+" disable vim-go def mapping so COC can do it
+" let g:go_def_mapping_enabled = 0
+" let g:go_info_mapping_enabled = 0
+" let g:go_referrers_mapping_enabled = 0
 
 let g:go_auto_type_info = 1
 let g:go_auto_sameids = 1
-let g:go_fmt_command = "goimports"
+let g:go_fmt_command = "gofmt"
 set updatetime=100
+
+" F12 re-syncs syntax if it gets screwed up
+noremap <F12> <Esc>:syntax sync fromstart<CR>
+inoremap <F12> <C-o>:syntax sync fromstart<CR>
 
 " vimwiki
  let wiki_trunk = {}
@@ -484,6 +496,7 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " End COC
+
 
 " centers the current pane as middle of 4 imaginary columns
 " should be called in a window with a single pane
