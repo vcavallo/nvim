@@ -45,11 +45,11 @@ let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
 
 ""
 " " need to npm-install prettier
-" let g:prettier#exec_cmd_path = "~/.npm-global/bin/prettier"
+  let g:prettier#exec_cmd_path = "~/.npm-global/bin/prettier"
 " let g:prettier#autoformat_config_present = 1
 " let g:prettier#autoformat_config_files = [".prettierrc"]
-" let g:prettier#autoformat = 0
-" "autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html Prettier
+ let g:prettier#autoformat = 0
+ " autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html Prettier
 " autocmd BufRead *.md let g:prettier#config#prose_wrap = 'always'
 "
 let g:deoplete#enable_at_startup = 0
