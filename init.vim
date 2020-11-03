@@ -133,6 +133,9 @@ set background=dark
 colorscheme grb256
 "colorscheme yin
 
+autocmd BufEnter * colorscheme grb256
+autocmd BufEnter *.md colorscheme monokai-phoenix
+
 set colorcolumn=85 " show right margin
 
 "" save and close mappings to avoid accidental :q when trying to :w
