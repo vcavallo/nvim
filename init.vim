@@ -630,6 +630,9 @@ nnoremap <leader>qq :cclose<CR>
 "
 ""spell check when writing commit logs
 autocmd filetype svn,*commit* setlocal spell
+
+" auto-fix last spelling error
+nnoremap <Leader>ss [s1z=
 "
 ""http://vimcasts.org/episodes/fugitive-vim-browsing-the-git-object-database/
 ""hacks from above (the url, not jesus) to delete fugitive buffers when we
