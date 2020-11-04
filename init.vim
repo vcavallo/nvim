@@ -23,7 +23,7 @@ Plug 'fenetikm/falcon'
 Plug 'flazz/vim-colorschemes'
 Plug 'mhinz/vim-startify'
 Plug 'rafi/awesome-vim-colorschemes'
-Plug 'fatih/vim-go'
+" Plug 'fatih/vim-go'
 Plug 'leafgarland/typescript-vim'
 Plug 'prettier/vim-prettier'
 Plug 'dense-analysis/ale'
@@ -45,11 +45,11 @@ let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
 
 ""
 " " need to npm-install prettier
-" let g:prettier#exec_cmd_path = "~/.npm-global/bin/prettier"
+  let g:prettier#exec_cmd_path = "~/.npm-global/bin/prettier"
 " let g:prettier#autoformat_config_present = 1
 " let g:prettier#autoformat_config_files = [".prettierrc"]
-" let g:prettier#autoformat = 0
-" "autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html Prettier
+ let g:prettier#autoformat = 0
+ " autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html Prettier
 " autocmd BufRead *.md let g:prettier#config#prose_wrap = 'always'
 "
 let g:deoplete#enable_at_startup = 0
@@ -132,6 +132,9 @@ set background=dark
 " colorscheme preto
 colorscheme grb256
 "colorscheme yin
+
+autocmd BufEnter * colorscheme grb256
+autocmd BufEnter *.md colorscheme monokai-phoenix
 
 set colorcolumn=85 " show right margin
 
@@ -261,27 +264,27 @@ autocmd BufRead,BufNewFile *.die setlocal noswapfile
 
 au FileType xhtml,xml so ~/.vim/bundle/html-autoclosetag.vim
 
-autocmd FileType go nmap <leader>b :GoBuild<CR>
-autocmd FileType go nmap <leader>r :GoRun<CR>
-autocmd FileType go nmap <leader>t :GoTest<CR>
-autocmd FileType go nmap <leader>s :GoTestFunc<CR>
-autocmd FileType go nmap <leader>g :GoFmt<CR>
+" autocmd FileType go nmap <leader>b :GoBuild<CR>
+" autocmd FileType go nmap <leader>r :GoRun<CR>
+" autocmd FileType go nmap <leader>t :GoTest<CR>
+" autocmd FileType go nmap <leader>s :GoTestFunc<CR>
+" autocmd FileType go nmap <leader>g :GoFmt<CR>
 
-" let g:go_gopls_enabled = 0
-" since the above is off, COC will handle these
+" " let g:go_gopls_enabled = 0
+" " since the above is off, COC will handle these
 " let g:go_gopls_options = ['-remote=auto']
 " let g:go_referrers_mode = 'gopls'
 " let g:go_def_mode='gopls'
 " let g:go_info_mode='gopls'
-" disable vim-go def mapping so COC can do it
+" " disable vim-go def mapping so COC can do it
 " let g:go_def_mapping_enabled = 0
 " let g:go_info_mapping_enabled = 0
 " let g:go_referrers_mapping_enabled = 0
-
-let g:go_auto_type_info = 1
-let g:go_auto_sameids = 1
-let g:go_fmt_command = "gofmt"
-set updatetime=100
+" 
+" let g:go_auto_type_info = 1
+" let g:go_auto_sameids = 1
+" let g:go_fmt_command = "gofmt"
+" set updatetime=100
 
 " F12 re-syncs syntax if it gets screwed up
 noremap <F12> <Esc>:syntax sync fromstart<CR>

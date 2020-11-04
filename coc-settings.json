@@ -1,13 +1,11 @@
 {
-  "go.goplsArgs": ["-remote=auto", "-logfile", "/tmp/gopls.log"],
+  // "go.goplsArgs": ["-remote=auto", "-logfile", "/tmp/gopls.log"],
   "go.goplsPath": "/home/vcavallo/go/bin/gopls",
   "diagnostic.errorSign": "✖",
   "diagnostic.warningSign": "⚠",
   "diagnostic.infoSign": "ℹ",
   "diagnostic.hintSign": "➤",
-  "diagnostic.checkCurrentLine": true
-  // "suggest.floatEnable": false,
-
+  "diagnostic.checkCurrentLine": true,
   // "languageserver": {
   //   "golang": {
   //     "command": "/home/vcavallo/go/bin/gopls",
@@ -15,5 +13,8 @@
   //     "rootPatterns": ["go.mod", ".vim/", ".config/nvim/", ".git/", ".hg/"],
   //     "filetypes": ["go"]
   //   }
-  // }
+  // },
+  "coc.preferences.formatOnSaveFiletypes": ["go"]
+  // "suggest.floatEnable": false,
 }
+
