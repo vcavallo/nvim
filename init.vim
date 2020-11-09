@@ -130,11 +130,12 @@ set background=dark
 "" apprentice, paramount, seoul256
 "" colorscheme seoul256
 " colorscheme preto
-colorscheme grb256
+" colorscheme grb256
 "colorscheme yin
+colorscheme paramount
 
-autocmd BufEnter * colorscheme grb256
-autocmd BufEnter *.md colorscheme monokai-phoenix
+" autocmd BufEnter * colorscheme grb256
+" autocmd BufEnter *.md colorscheme monokai-phoenix
 
 set colorcolumn=85 " show right margin
 
@@ -341,6 +342,17 @@ let g:syntastic_mode_map={ 'mode': 'active',
 " autosave on lost focus "
 autocmd BufLeave,FocusLost * silent! wall
 :au FocusLost * silent! wa
+
+" Use pp to _add_ the (Z) priority to a task
+" for tasks that already have priority, use p(n) to reprioritize
+" **only applies to files named 'todo.txt'!**
+autocmd BufRead,BufNewFile todo.txt nnoremap gpa :s/(\w)/(A)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpb :s/(\w)/(B)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpc :s/(\w)/(C)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpd :s/(\w)/(D)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpx :s/(\w)/(X)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpz :s/(\w)/(Z)/g<cr>:noh<esc>
+autocmd BufRead,BufNewFile todo.txt nnoremap gpp ^i(Z) <esc>
 
 :map tt :Vexplore<cr>
 
