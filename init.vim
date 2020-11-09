@@ -131,10 +131,16 @@ set background=dark
 "" colorscheme seoul256
 " colorscheme preto
 " colorscheme grb256
-"colorscheme yin
+" colorscheme monokai-phoenix
+" colorscheme yin
+" murphy
+" koehler
+
 colorscheme paramount
 
+
 " autocmd BufEnter * colorscheme grb256
+"autocmd BufEnter * colorscheme monokai-phoenix
 " autocmd BufEnter *.md colorscheme monokai-phoenix
 
 set colorcolumn=85 " show right margin
