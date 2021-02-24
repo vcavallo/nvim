@@ -31,7 +31,8 @@ Plug 'wakatime/vim-wakatime'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'alok/notational-fzf-vim'
-Plug 'fiatjaf/neuron.vim'
+" Plug 'fiatjaf/neuron.vim'
+Plug 'chiefnoah/neuron-v2.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -77,6 +78,7 @@ let g:startify_disable_at_vimenter = 1
 " notational-fzf-vim settings
 let g:nv_search_paths = [
   \ '~/Dropbox/nvALT',
+  \ '~/Dropbox/journal',
   \ '~/Dropbox/wiki/notes',
   \ '~/Dropbox/Documents',
   \ '~/Dropbox/zettelkasten',
@@ -136,14 +138,18 @@ set background=dark
 " murphy
 " koehler
 
-colorscheme paramount
+" colorscheme paramount
+" colorscheme apprentice
+colorscheme grb256
 
 
 " autocmd BufEnter * colorscheme grb256
 "autocmd BufEnter * colorscheme monokai-phoenix
 " autocmd BufEnter *.md colorscheme monokai-phoenix
 
-set colorcolumn=85 " show right margin
+" set colorcolumn=85 " show right margin
+nnoremap <Leader>m :set colorcolumn=0<cr>
+nnoremap <Leader>mm :set colorcolumn=85<cr>
 
 "" save and close mappings to avoid accidental :q when trying to :w
 map <Leader>ww :w<CR>
