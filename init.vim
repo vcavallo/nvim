@@ -38,11 +38,19 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'pgdouyon/vim-yin-yang'
+Plug 'gabrielelana/vim-markdown'
+Plug 'xolox/vim-colorscheme-switcher'
+
+Plug 'dhruvasagar/vim-table-mode'
+
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 call plug#end()            " required
 filetype plugin indent on    " required
 
 let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
+
+
+" Java
 
 ""
 " " need to npm-install prettier
@@ -58,7 +66,7 @@ let g:deoplete#enable_at_startup = 0
 " " set up fzf
 set rtp+=~/.fzf
 let g:fzf_command_prefix = 'Fzf'
-let g:fzf_preview_window = 'right:60%'
+let g:fzf_preview_window = ['right:60%', 'ctrl-/']
 
 nnoremap <leader>ff :FzfFiles<return>
 nmap <C-P> :FzfFiles!<return>
@@ -78,12 +86,22 @@ let g:startify_disable_at_vimenter = 1
 " notational-fzf-vim settings
 let g:nv_search_paths = [
   \ '~/Dropbox/nvALT',
+  \ '~/Dropbox/nvALT_archive',
   \ '~/Dropbox/journal',
   \ '~/Dropbox/wiki/notes',
   \ '~/Dropbox/Documents',
-  \ '~/Dropbox/zettelkasten',
+  \ '~/zettelkasten',
+  \ '~/private-zettelkasten',
   \ '~/Desktop']
+
+"let g:nv_python_path='/home/vcavallo/anaconda3/bin/python3'
+"let g:nv_python_path='/usr/bin/python3.6m'
+
+let g:nv_use_short_pathnames=0 " not ok with python version
 let g:nv_create_note_window = 'split' " tabedit
+let g:nv_window_direction = 'down'
+let g:nv_window_width = '75%'
+let g:nv_preview_direction = 'up'
 nnoremap <leader>nv :NV<cr>
 
 " for when you have a new buffer and you want to save it directly
@@ -137,24 +155,30 @@ set background=dark
 " colorscheme yin
 " murphy
 " koehler
-
 " colorscheme paramount
 " colorscheme apprentice
+
 colorscheme grb256
 
+""" Switch colorschemes when entering and exiting markdown files
+""" update this whenever changing base scheme:
+""" .... actually don't use this. it seems to break italics.
+"autocmd BufLeave *.md,*.markdown colorscheme grb256
+"autocmd BufEnter,BufRead,BufNewFile *.md,*.markdown colorscheme tender
 
-" autocmd BufEnter * colorscheme grb256
-"autocmd BufEnter * colorscheme monokai-phoenix
-" autocmd BufEnter *.md colorscheme monokai-phoenix
-
-" set colorcolumn=85 " show right margin
+set colorcolumn=85 " show right margin
 nnoremap <Leader>m :set colorcolumn=0<cr>
 nnoremap <Leader>mm :set colorcolumn=85<cr>
 
 "" save and close mappings to avoid accidental :q when trying to :w
 map <Leader>ww :w<CR>
 map <Leader>zz :q<CR>
-"
+map <Leader>qq :q!<CR>
+
+" insert datestamp
+nmap <Leader>ts i<C-R>=strftime("%Y-%m-%d")<CR><Esc>
+imap <Leader>ts <C-R>=strftime("%Y-%m-%d")<CR>
+
 "" toggle paste modes
 map <Leader>vv :set invpaste paste?<CR>
 "
@@ -257,12 +281,14 @@ autocmd BufRead,BufNewFile *.jbuilder* set syntax=ruby
 autocmd BufRead,BufNewFile *.ledger,*.journal set filetype=ledger
 autocmd BufRead,BufNewFile *.ledger,*.journal set syntax=ledger
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set filetype=markdown
+"autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set formatoptions+=a " auto-re-wrap lines. also remember to use `gwap`
+autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set textwidth=80
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal syntax=markdown
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal spell
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal wrap linebreak
+
 autocmd BufRead,BufNewFile *.md,*.markdown setlocal conceallevel=1
 autocmd BufRead,BufNewFile todo.txt setlocal nospell
-" autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal textwidth=80
 autocmd BufRead,BufNewFile *.c setlocal tabstop=8
 autocmd BufRead,BufNewFile *.c setlocal shiftwidth=8
 autocmd FileType help setlocal nospell
@@ -630,7 +656,7 @@ nnoremap , @q
 nnoremap Y y$
 "
 ""close quickfix easily:
-nnoremap <leader>qq :cclose<CR>
+" nnoremap <leader>qq :cclose<CR>
 
 "visual search mappings
  function! s:VSetSearch()

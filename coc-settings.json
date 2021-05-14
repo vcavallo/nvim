@@ -1,20 +1,24 @@
 {
-  // "go.goplsArgs": ["-remote=auto", "-logfile", "/tmp/gopls.log"],
   "go.goplsPath": "/home/vcavallo/go/bin/gopls",
   "diagnostic.errorSign": "✖",
   "diagnostic.warningSign": "⚠",
   "diagnostic.infoSign": "ℹ",
   "diagnostic.hintSign": "➤",
   "diagnostic.checkCurrentLine": true,
-  // "languageserver": {
-  //   "golang": {
-  //     "command": "/home/vcavallo/go/bin/gopls",
-  //     "args": ["-remote=auto"],
-  //     "rootPatterns": ["go.mod", ".vim/", ".config/nvim/", ".git/", ".hg/"],
-  //     "filetypes": ["go"]
-  //   }
-  // },
-  "coc.preferences.formatOnSaveFiletypes": ["go"]
-  // "suggest.floatEnable": false,
+  "coc.preferences.formatOnSaveFiletypes": ["go"],
+  "java.home": "/home/vcavallo/code/jdk1.8.0_281",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-1.8",
+      "path": "/home/vcavallo/code/jdk1.8.0_281",
+      "default": true
+    }
+  ],
+  "java.project.referencedLibraries": [
+    "/home/vcavallo/code/e66-java/dbms/lib/JFlex.jar",
+    "/home/vcavallo/code/e66-java/dbms/lib/java-cup-11.jar",
+    "/home/vcavallo/code/e66-java/dbms/lib/je-7.5.11.jar"
+  ],
+  "java.errors.incompleteClasspath.severity": "ignore"
 }
 
