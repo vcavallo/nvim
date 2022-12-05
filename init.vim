@@ -1,3 +1,21 @@
+if exists('g:vscode')
+  " settings for vscode
+  """" splitting "
+  "" set default split opening to bottom and right: "
+  set splitbelow
+  set splitright
+  " " open vertical split:
+  nnoremap <silent> vv <C-w>v
+  " " open horizontal split:
+  nnoremap <silent> vs <C-w>s
+  "
+  "" remove need for C-w before navigating "
+  nnoremap <C-J> <C-W><C-J>
+  nnoremap <C-K> <C-W><C-K>
+  nnoremap <C-L> <C-W><C-L>
+  nnoremap <C-H> <C-W><C-H>
+  "
+else
 set nocompatible
 filetype off
 
@@ -19,19 +37,20 @@ Plug 'morhetz/gruvbox'
 Plug 'tpope/vim-vinegar'
 Plug 'jacoborus/tender.vim'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'nvim-lualine/lualine.nvim'
+Plug 'kyazdani42/nvim-web-devicons'
 Plug 'fenetikm/falcon'
 Plug 'flazz/vim-colorschemes'
 Plug 'mhinz/vim-startify'
 Plug 'rafi/awesome-vim-colorschemes'
 " Plug 'fatih/vim-go'
-Plug 'leafgarland/typescript-vim'
 Plug 'prettier/vim-prettier'
 Plug 'dense-analysis/ale'
 Plug 'wakatime/vim-wakatime'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
-Plug 'alok/notational-fzf-vim'
-" Plug 'fiatjaf/neuron.vim'
+" Plug 'alok/notational-fzf-vim'
+Plug 'fiatjaf/neuron.vim'
 Plug 'chiefnoah/neuron-v2.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -41,14 +60,49 @@ Plug 'pgdouyon/vim-yin-yang'
 Plug 'gabrielelana/vim-markdown'
 Plug 'xolox/vim-colorscheme-switcher'
 
-Plug 'dhruvasagar/vim-table-mode'
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+Plug 'jparise/vim-graphql'
+Plug 'urbit/hoon.vim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'mattn/emmet-vim'
+" Plug 'yaegassy/coc-volar', {'do': 'yarn install --frozen-lockfile'}
+" Plug 'yaegassy/coc-volar-tools', {'do': 'yarn install --frozen-lockfile'}
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+
+" (Optional) Multi-entry selection UI.
+Plug 'junegunn/fzf'
 
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+let g:coc_global_extensions = [
+  \ 'coc-tsserver'
+  \ ]
 call plug#end()            " required
 filetype plugin indent on    " required
 
 let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
 
+" let g:LanguageClient_serverCommands = {
+"       \ 'vue': ['vls']
+"       \}
+
+lua << END
+require'lspconfig'.hoon_ls.setup{}
+END
+
+" todo.txt
+"
+" Use todo#Complete as the omni complete function for todo files
+au filetype todo setlocal omnifunc=todo#Complete
+" Auto complete projects
+au filetype todo imap <buffer> + +<C-X><C-O>
+" Auto complete contexts
+au filetype todo imap <buffer> @ @<C-X><C-O>
 
 " Java
 
@@ -84,24 +138,24 @@ set shortmess=IA
 let g:startify_disable_at_vimenter = 1
 
 " notational-fzf-vim settings
-let g:nv_search_paths = [
-  \ '~/Dropbox/nvALT',
-  \ '~/Dropbox/nvALT_archive',
-  \ '~/Dropbox/journal',
-  \ '~/Dropbox/wiki/notes',
-  \ '~/Dropbox/Documents',
-  \ '~/zettelkasten',
-  \ '~/private-zettelkasten',
-  \ '~/Desktop']
+" let g:nv_search_paths = [
+"   \ '~/Dropbox/nvALT',
+"   \ '~/Dropbox/nvALT_archive',
+"   \ '~/Dropbox/journal',
+"   \ '~/Dropbox/wiki/notes',
+"   \ '~/Dropbox/Documents',
+"   \ '~/zettelkasten',
+"   \ '~/private-zettelkasten',
+"   \ '~/Desktop']
 
 "let g:nv_python_path='/home/vcavallo/anaconda3/bin/python3'
 "let g:nv_python_path='/usr/bin/python3.6m'
 
-let g:nv_use_short_pathnames=0 " not ok with python version
-let g:nv_create_note_window = 'split' " tabedit
-let g:nv_window_direction = 'down'
-let g:nv_window_width = '75%'
-let g:nv_preview_direction = 'up'
+" let g:nv_use_short_pathnames=0 " not ok with python version
+" let g:nv_create_note_window = 'split' " tabedit
+" let g:nv_window_direction = 'down'
+" let g:nv_window_width = '75%'
+" let g:nv_preview_direction = 'up'
 nnoremap <leader>nv :NV<cr>
 
 " for when you have a new buffer and you want to save it directly
@@ -211,9 +265,9 @@ cnoreabbrev Ack Ack!
 "
 if executable('ag')
   " Use Ag over Grep
-  set grepprg=ag\ --nogroup\ --nocolor
+  set grepprg=ag\ --nogroup\ --nocolor\ --ignore-dir=node_modules
   " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g "" --ignore-dir=node_modules'
 endif
 "
 "
@@ -272,6 +326,8 @@ let g:rspec_command = "!bin/rspec {spec}"
 """ Run all cucumber feature files
 ""map <Leader>ca :w<cr>:!cucumber<cr>
 "
+autocmd BufRead,BufNewFile *.hoon set colorcolumn=57,81
+
 autocmd BufRead,BufNewFile *.less set filetype=css
 autocmd BufRead,BufNewFile *.less set syntax=css
 autocmd BufRead,BufNewFile *.scss* set filetype=scss.css
@@ -480,18 +536,51 @@ set hidden
 " let g:airline_theme='gruvbox'
 " let g:airline_theme='zenburn'
 " let g:airline_theme='tender'
-let g:airline_theme='raven'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline_powerline_fonts = 1
-let g:airline_right_sep = ''
-let g:airline_left_sep = ''
-let g:airline#extensions#branch#enabled= 0
+" let g:airline_theme='raven'
+" let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#tabline#left_sep = ' '
+" let g:airline#extensions#tabline#left_alt_sep = '|'
+" let g:airline_powerline_fonts = 1
+" let g:airline_right_sep = ''
+" let g:airline_left_sep = ''
+" let g:airline#extensions#branch#enabled= 0
+" 
+" " let g:airline_theme='distinguished'
+" let g:airline_theme='raven'
 
-" let g:airline_theme='distinguished'
-let g:airline_theme='raven'
+lua << END
+require('lualine').setup {
+    options = {
+    icons_enabled = true,
+    theme = 'wombat',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {},
+    always_divide_middle = true,
+    globalstatus = false,
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
+}
+END
 
+let g:ale_enabbled = 0
 " let g:ale_linters = {
 " \   'javascript': ['eslint'],
 " \   'typescript': ['tsserver', 'tslint'],
@@ -499,8 +588,16 @@ let g:airline_theme='raven'
 " \}
 
 " COC
-let g:coc_node_path = "/usr/bin/node"
+let g:coc_node_path = "/home/vcavallo/.nvm/versions/node/v14.17.6/bin/node"
 " let g:coc_global_extensions = "/home/vcavallo/.config/coc/extensions"
+
+if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
+  let g:coc_global_extensions += ['coc-prettier']
+endif
+
+if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
+  let g:coc_global_extensions += ['coc-eslint']
+endif
 
 " jumping to next and previous diagnostics
 try
@@ -510,18 +607,53 @@ endtry
 nmap <leader>d :CocDiagnostics<cr>
 nnoremap <silent> <C-Space> :call CocActionAsync('doHover')<cr>
 
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
 " Use tab for trigger completion with characters ahead and navigate.
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-
-" automatically select first item
-inoremap <silent><expr> <c-y> pumvisible() ? coc#_select_confirm() : "\<c-y>"
-
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
 " above function relies on below function..
 function! s:check_back_space() abort
   let col = col('.') - 1
@@ -650,7 +782,7 @@ nmap <silent> gr <Plug>(coc-references)
 noremap Q gq
 "
 "" allow , to play macro
-nnoremap , @q
+" nnoremap , @q
 "
 ""make Y consistent with C and D
 nnoremap Y y$
@@ -703,3 +835,4 @@ nnoremap <esc> :noh<return><esc>
 nnoremap <esc>^[ <esc>^[
 " This mapping can cause startup problems! https://stackoverflow.com/a/1037182/1923858 
 
+endif " for vscode
