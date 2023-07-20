@@ -21,6 +21,11 @@
     "/home/vcavallo/code/e66-java/dbms/lib/je-7.5.11.jar"
   ],
   "java.errors.incompleteClasspath.severity": "ignore",
-  "python.formatting.provider": "black"
+  "python.formatting.provider": "black",
+  "emmet.includeLanguages": {
+    "vue-html": "html",
+    "vue": "javascript",
+    "javascript": "javascript"
+  }
 }
 

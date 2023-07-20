@@ -65,9 +65,15 @@ Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'jparise/vim-graphql'
+
 Plug 'urbit/hoon.vim'
+Plug 'https://git.sr.ht/~talfus-laddus/hoon-runes.vim', { 'branch': 'main' }
+Plug 'https://git.sr.ht/~talfus-laddus/hoon-stdlib.vim', { 'branch': 'main' }
+
 Plug 'neovim/nvim-lspconfig'
 Plug 'mattn/emmet-vim'
+Plug 'leafOfTree/vim-vue-plugin'
+
 " Plug 'yaegassy/coc-volar', {'do': 'yarn install --frozen-lockfile'}
 " Plug 'yaegassy/coc-volar-tools', {'do': 'yarn install --frozen-lockfile'}
 Plug 'autozimu/LanguageClient-neovim', {
@@ -86,6 +92,17 @@ call plug#end()            " required
 filetype plugin indent on    " required
 
 let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
+
+" use <c-y>, " note comma!
+let g:vim_vue_plugin_config = { 
+      \'syntax': {
+      \   'template': ['html'],
+      \   'script': ['javascript', 'typescript'],
+      \   'style': ['css', 'scss', 'sass'],
+      \   'i18n': ['json', 'yaml'],
+      \   'route': 'json',
+      \},
+      \}
 
 " let g:LanguageClient_serverCommands = {
 "       \ 'vue': ['vls']
@@ -220,6 +237,7 @@ colorscheme grb256
 "autocmd BufLeave *.md,*.markdown colorscheme grb256
 "autocmd BufEnter,BufRead,BufNewFile *.md,*.markdown colorscheme tender
 
+highlight ColorColumn ctermbg=236
 set colorcolumn=85 " show right margin
 nnoremap <Leader>m :set colorcolumn=0<cr>
 nnoremap <Leader>mm :set colorcolumn=85<cr>
