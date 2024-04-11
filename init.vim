@@ -24,10 +24,13 @@ call plug#begin('~/.config/nvim/bundle')
 
 " Plugin 'VundleVim/Vundle.vim'
 
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
 Plug 'tpope/vim-fugitive'
 Plug 'mileszs/ack.vim'
 Plug 'scrooloose/NERDCommenter'
-Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'lokaltog/vim-easymotion'
 Plug 'Valloric/vim-indent-guides'
 Plug 'tpope/vim-sensible'
@@ -36,7 +39,6 @@ Plug 'tpope/vim-unimpaired'
 Plug 'morhetz/gruvbox'
 Plug 'tpope/vim-vinegar'
 Plug 'jacoborus/tender.vim'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'fenetikm/falcon'
@@ -52,13 +54,14 @@ Plug 'junegunn/limelight.vim'
 " Plug 'alok/notational-fzf-vim'
 Plug 'fiatjaf/neuron.vim'
 Plug 'chiefnoah/neuron-v2.vim'
-Plug 'vimwiki/vimwiki'
+" Plug 'vimwiki/vimwiki'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'pgdouyon/vim-yin-yang'
 Plug 'gabrielelana/vim-markdown'
 Plug 'xolox/vim-colorscheme-switcher'
+Plug 'elmcast/elm-vim'
 
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
@@ -70,12 +73,24 @@ Plug 'urbit/hoon.vim'
 Plug 'https://git.sr.ht/~talfus-laddus/hoon-runes.vim', { 'branch': 'main' }
 Plug 'https://git.sr.ht/~talfus-laddus/hoon-stdlib.vim', { 'branch': 'main' }
 
-Plug 'neovim/nvim-lspconfig'
 Plug 'mattn/emmet-vim'
 Plug 'leafOfTree/vim-vue-plugin'
 
-" Plug 'yaegassy/coc-volar', {'do': 'yarn install --frozen-lockfile'}
-" Plug 'yaegassy/coc-volar-tools', {'do': 'yarn install --frozen-lockfile'}
+Plug 'williamboman/mason.nvim'
+Plug 'williamboman/mason-lspconfig.nvim'
+Plug 'neovim/nvim-lspconfig'
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
+
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': 'bash install.sh',
@@ -84,12 +99,14 @@ Plug 'autozimu/LanguageClient-neovim', {
 " (Optional) Multi-entry selection UI.
 Plug 'junegunn/fzf'
 
-Plug 'neoclide/coc.nvim', { 'branch': 'release' }
-let g:coc_global_extensions = [
-  \ 'coc-tsserver'
-  \ ]
 call plug#end()            " required
 filetype plugin indent on    " required
+
+set t_Co=256
+set termguicolors
+
+" elm
+let g:elm_format_autosave = 1
 
 let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
 
@@ -109,8 +126,155 @@ let g:vim_vue_plugin_config = {
 "       \}
 
 lua << END
-require'lspconfig'.hoon_ls.setup{}
+vim.o.completeopt = 'menuone,noselect'
+
+require("mason").setup()
+require("mason-lspconfig").setup()
+
+local lspconfig = require('lspconfig')
+
+lspconfig.hoon_ls.setup{}
+lspconfig.marksman.setup{}
+lspconfig.eslint.setup{}
+lspconfig.tsserver.setup{}
+
+-- Global mappings.
+-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+local lspcapabilities = require("cmp_nvim_lsp").default_capabilities()
+
+-- Use LspAttach autocommand to only map the following keys
+-- after the language server attaches to the current buffer
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+  callback = function(ev)
+    -- Enable completion triggered by <c-x><c-o>
+    -- vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+    -- Buffer local mappings.
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    local opts = { buffer = ev.buf }
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', '<C-Space>', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wl', function()
+      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, opts)
+    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', '<space>f', function()
+      vim.lsp.buf.format { async = true }
+    end, opts)
+  end,
+})
+
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all" (the five listed parsers should always be installed)
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+  auto_install = true,
+
+  -- List of parsers to ignore installing (or "all")
+  ignore_install = { "" },
+
+  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
+  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+
+  highlight = {
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = { "c", "rust" },
+    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+    disable = function(lang, buf)
+        local max_filesize = 100 * 1024 -- 100 KB
+        local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+        if ok and stats and stats.size > max_filesize then
+            return true
+        end
+    end,
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+
+local has_words_before = function()
+  unpack = unpack or table.unpack
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+local feedkey = function(key, mode)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
+end
+
+local cmp = require 'cmp'
+cmp.setup {
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end,
+  },
+  mapping = cmp.mapping.preset.insert({
+    ['<C-u>'] = cmp.mapping.scroll_docs(-4), -- Up
+    ['<C-d>'] = cmp.mapping.scroll_docs(4), -- Down
+    -- C-b (back) C-f (forward) for snippet placeholder navigation.
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
+    ['<Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+  }),
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' },
+  },
+}
+
+
 END
+
 
 " todo.txt
 "
@@ -227,9 +391,8 @@ set background=dark
 " murphy
 " koehler
 " colorscheme paramount
-" colorscheme apprentice
-
-colorscheme grb256
+colorscheme apprentice
+" colorscheme grb256
 
 """ Switch colorschemes when entering and exiting markdown files
 """ update this whenever changing base scheme:
@@ -287,6 +450,13 @@ if executable('ag')
   " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
   let g:ctrlp_user_command = 'ag %s -l --nocolor -g "" --ignore-dir=node_modules'
 endif
+
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
 "
 "
 " augroup BgHighlight
@@ -361,7 +531,9 @@ autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal 
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal spell
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal wrap linebreak
 
-autocmd BufRead,BufNewFile *.md,*.markdown setlocal conceallevel=1
+let g:markdown_fenced_languages = ['html', 'python', 'ruby', 'vim', 'javascript', 'hoon', 'bash']
+
+" autocmd BufRead,BufNewFile *.md,*.markdown setlocal conceallevel=1
 autocmd BufRead,BufNewFile todo.txt setlocal nospell
 autocmd BufRead,BufNewFile *.c setlocal tabstop=8
 autocmd BufRead,BufNewFile *.c setlocal shiftwidth=8
@@ -404,24 +576,24 @@ noremap <F12> <Esc>:syntax sync fromstart<CR>
 inoremap <F12> <C-o>:syntax sync fromstart<CR>
 
 " vimwiki
- let wiki_trunk = {}
- let wiki_trunk.path = '~/Dropbox/wiki/notes'
- let wiki_trunk.ext = '.md'
- let wiki_trunk.syntax = 'markdown'
- let wiki_trunk.links_space_char = '-'
+" let wiki_trunk = {}
+" let wiki_trunk.path = '~/Dropbox/wiki/notes'
+" let wiki_trunk.ext = '.md'
+" let wiki_trunk.syntax = 'markdown'
+" let wiki_trunk.links_space_char = '-'
 
- let zettel_trunk = {}
- let zettel_trunk.path = '~/zettelkasten'
- let zettel_trunk.syntax = 'markdown'
- let zettel_trunk.ext = '.md'
- let zettel_trunk.links_space_char = '-'
+"  let zettel_trunk = {}
+"  let zettel_trunk.path = '~/zettelkasten'
+"  let zettel_trunk.syntax = 'markdown'
+"  let zettel_trunk.ext = '.md'
+"  let zettel_trunk.links_space_char = '-'
+" 
+" let g:vimwiki_list = [wiki_trunk, zettel_trunk]
 
-let g:vimwiki_list = [wiki_trunk, zettel_trunk]
-
-" remove the '-' mapping to allow vim vinegar to open:
-nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
-
-nmap <Leader>wo <Plug>VimwikiIndex
+" " remove the '-' mapping to allow vim vinegar to open:
+" nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
+" 
+" nmap <Leader>wo <Plug>VimwikiIndex
 
 " let g:zettel_format = "%Y%m%d%H%M%S"
 " let g:zettel_date_format = "%Y-%m-%d"
@@ -543,8 +715,6 @@ filetype indent on
 "  set ttymouse=xterm2
 "endif
 "
-""tell the term has 256 colors
-set t_Co=256
 
 ""hide buffers when not displayed
 set hidden
@@ -604,108 +774,6 @@ let g:ale_enabbled = 0
 " \   'typescript': ['tsserver', 'tslint'],
 " \   'vue': ['eslint']
 " \}
-
-" COC
-let g:coc_node_path = "/home/vcavallo/.nvm/versions/node/v14.17.6/bin/node"
-" let g:coc_global_extensions = "/home/vcavallo/.config/coc/extensions"
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
-  let g:coc_global_extensions += ['coc-prettier']
-endif
-
-if isdirectory('./node_modules') && isdirectory('./node_modules/eslint')
-  let g:coc_global_extensions += ['coc-eslint']
-endif
-
-" jumping to next and previous diagnostics
-try
-    nmap <silent> ]c :call CocAction('diagnosticNext')<cr>
-    nmap <silent> [c :call CocAction('diagnosticPrevious')<cr>
-endtry
-nmap <leader>d :CocDiagnostics<cr>
-nnoremap <silent> <C-Space> :call CocActionAsync('doHover')<cr>
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call ShowDocumentation()<CR>
-
-function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
-endfunction
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: There's always complete item selected by default, you may want to enable
-" no select by `"suggest.noselect": true` in your configuration file.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-
-" Make <CR> to accept selected completion item or notify coc.nvim to format
-" <C-g>u breaks current undo, please make your own choice.
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" Use <c-space> to trigger completion.
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
-
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" above function relies on below function..
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-if has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
-endif
-
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
-
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" End COC
-
 
 " centers the current pane as middle of 4 imaginary columns
 " should be called in a window with a single pane
