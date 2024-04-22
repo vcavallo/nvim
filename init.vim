@@ -26,7 +26,10 @@ call plug#begin('~/.config/nvim/bundle')
 
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }
+Plug 'nvim-lua/plenary.nvim'
+
 Plug 'tpope/vim-fugitive'
+"Plug 'github/copilot.vim'
 Plug 'mileszs/ack.vim'
 Plug 'scrooloose/NERDCommenter'
 Plug 'vim-airline/vim-airline'
@@ -47,10 +50,11 @@ Plug 'mhinz/vim-startify'
 Plug 'rafi/awesome-vim-colorschemes'
 " Plug 'fatih/vim-go'
 Plug 'prettier/vim-prettier'
-Plug 'dense-analysis/ale'
+" Plug 'dense-analysis/ale'
 Plug 'wakatime/vim-wakatime'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
+Plug 'elmcast/elm-vim'
 " Plug 'alok/notational-fzf-vim'
 Plug 'fiatjaf/neuron.vim'
 Plug 'chiefnoah/neuron-v2.vim'
@@ -59,9 +63,14 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'pgdouyon/vim-yin-yang'
-Plug 'gabrielelana/vim-markdown'
+" Plug 'gabrielelana/vim-markdown'
+Plug 'vim-pandoc/vim-pandoc'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'xolox/vim-misc'
 Plug 'xolox/vim-colorscheme-switcher'
 Plug 'elmcast/elm-vim'
+Plug 'mattn/vim-gist'
+Plug 'mattn/webapi-vim'
 
 Plug 'pangloss/vim-javascript'
 Plug 'leafgarland/typescript-vim'
@@ -76,9 +85,12 @@ Plug 'https://git.sr.ht/~talfus-laddus/hoon-stdlib.vim', { 'branch': 'main' }
 Plug 'mattn/emmet-vim'
 Plug 'leafOfTree/vim-vue-plugin'
 
+Plug 'neovim/nvim-lspconfig'
 Plug 'williamboman/mason.nvim'
 Plug 'williamboman/mason-lspconfig.nvim'
-Plug 'neovim/nvim-lspconfig'
+
+Plug 'folke/zen-mode.nvim'
+Plug 'crispgm/telescope-heading.nvim'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
@@ -88,8 +100,8 @@ Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 
-Plug 'hrsh7th/vim-vsnip'
-Plug 'hrsh7th/vim-vsnip-integ'
+Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'L3MON4D3/LuaSnip'
 
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
@@ -103,12 +115,17 @@ call plug#end()            " required
 filetype plugin indent on    " required
 
 set t_Co=256
-set termguicolors
+" set termguicolors
 
 " elm
 let g:elm_format_autosave = 1
 
 let g:path_neuron = "/home/vcavallo/.nix-profile/bin/neuron"
+
+" vim-gist
+let g:gist_open_browser_after_post = 1
+let g:gist_post_private = 1
+let g:gist_detect_filetype = 1
 
 " use <c-y>, " note comma!
 let g:vim_vue_plugin_config = { 
@@ -128,6 +145,18 @@ let g:vim_vue_plugin_config = {
 lua << END
 vim.o.completeopt = 'menuone,noselect'
 
+require('telescope').load_extension('heading')
+
+local telescope = require('telescope')
+telescope.setup({
+    extensions = {
+        heading = {
+            treesitter = true,
+        },
+    },
+})
+telescope.load_extension('heading')
+
 require("mason").setup()
 require("mason-lspconfig").setup()
 
@@ -137,6 +166,9 @@ lspconfig.hoon_ls.setup{}
 lspconfig.marksman.setup{}
 lspconfig.eslint.setup{}
 lspconfig.tsserver.setup{}
+lspconfig.biome.setup{}
+lspconfig.tailwindcss.setup{}
+lspconfig.pyright.setup{}
 
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -163,7 +195,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', '<C-Space>', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts) -- conflicts with navigation
     vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<space>wl', function()
@@ -181,7 +213,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the five listed parsers should always be installed)
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "rst" },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -221,17 +253,51 @@ require'nvim-treesitter.configs'.setup {
   },
 }
 
+-- Add additional capabilities supported by nvim-cmp
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+local lspconfig = require('lspconfig')
+
+-- Enable some language servers with the additional completion capabilities offered by nvim-cmp
+local servers = { 'clangd', 'eslint', 'marksman', 'pyright', 'tsserver', 'biome', 'tailwindcss' }
+for _, lsp in ipairs(servers) do
+  lspconfig[lsp].setup {
+    -- on_attach = my_custom_on_attach,
+    capabilities = capabilities,
+  }
+end
+
+lspconfig.cssls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities
+}
+
+lspconfig.html.setup {
+  on_attach = on_attach,
+  capabilities = capabilities
+}
+
+-- luasnip setup
+local luasnip = require 'luasnip'
+
+require("luasnip.loaders.from_lua").lazy_load()
+-- set keybinds for both INSERT and VISUAL.
+vim.api.nvim_set_keymap("n", "<leader>re", "<Plug>(Prettier)", {})
+vim.api.nvim_set_keymap("v", "<leader>re", ":PrettierFragment<cr>", {})
+
+
+vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
+vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
+vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
+vim.api.nvim_set_keymap("s", "<C-p>", "<Plug>luasnip-prev-choice", {})
+-- Set this check up for nvim-cmp tab mapping
 local has_words_before = function()
-  unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
-local feedkey = function(key, mode)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-end
-
 local cmp = require 'cmp'
+
 cmp.setup {
   snippet = {
     expand = function(args)
@@ -239,6 +305,8 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert({
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-u>'] = cmp.mapping.scroll_docs(-4), -- Up
     ['<C-d>'] = cmp.mapping.scroll_docs(4), -- Down
     -- C-b (back) C-f (forward) for snippet placeholder navigation.
@@ -252,10 +320,13 @@ cmp.setup {
         cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
+      elseif has_words_before() then
+        cmp.complete()
       else
         fallback()
       end
     end, { 'i', 's' }),
+
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
@@ -268,13 +339,82 @@ cmp.setup {
   }),
   sources = {
     { name = 'nvim_lsp' },
-    { name = 'vsnip' },
+    { name = 'nvim_lsp_signature_help' },
+    { name = 'luasnip' },
+    { name = 'buffer' },
+    { name = 'path' }
   },
 }
 
+require("zen-mode").setup = {
+    window = {
+    backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
+    -- height and width can be:
+    -- * an absolute number of cells when > 1
+    -- * a percentage of the width / height of the editor when <= 1
+    -- * a function that returns the width or the height
+    width = 120, -- width of the Zen window
+    height = 1, -- height of the Zen window
+    -- by default, no options are changed for the Zen window
+    -- uncomment any of the options below, or add other vim.wo options you want to apply
+    options = {
+      signcolumn = "no", -- disable signcolumn
+      number = false, -- disable number column
+      relativenumber = false, -- disable relative numbers
+      -- cursorline = false, -- disable cursorline
+      -- cursorcolumn = false, -- disable cursor column
+      -- foldcolumn = "0", -- disable fold column
+      -- list = false, -- disable whitespace characters
+    },
+  },
+  plugins = {
+    -- disable some global vim options (vim.o...)
+    -- comment the lines to not apply the options
+    options = {
+      enabled = true,
+      ruler = false, -- disables the ruler text in the cmd line area
+      -- showcmd = false, -- disables the command in the last line of the screen
+      -- you may turn on/off statusline in zen mode by setting 'laststatus' 
+      -- statusline will be shown only if 'laststatus' == 3
+      -- laststatus = 0, -- turn off the statusline in zen mode
+    },
+    -- twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
+    gitsigns = { enabled = false }, -- disables git signs
+    tmux = { enabled = false }, -- disables the tmux statusline
+    -- this will change the font size on kitty when in zen mode
+    -- to make this work, you need to set the following kitty options:
+    -- - allow_remote_control socket-only
+    -- - listen_on unix:/tmp/kitty
+    kitty = {
+      enabled = false,
+      font = "+4", -- font size increment
+    },
+    -- this will change the font size on alacritty when in zen mode
+    -- requires  Alacritty Version 0.10.0 or higher
+    -- uses `alacritty msg` subcommand to change font size
+    alacritty = {
+      enabled = false,
+      font = "18", -- font size
+    },
+    -- this will change the font size on wezterm when in zen mode
+    -- See alse also the Plugins/Wezterm section in this projects README
+    wezterm = {
+      enabled = false,
+      -- can be either an absolute font size or the number of incremental steps
+      font = "+4", -- (10% increase per step)
+    },
+  }
+}
 
 END
 
+
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>hh <cmd>Telescope heading<cr>
 
 " todo.txt
 "
@@ -285,6 +425,12 @@ au filetype todo imap <buffer> + +<C-X><C-O>
 " Auto complete contexts
 au filetype todo imap <buffer> @ @<C-X><C-O>
 
+" Elm
+"
+let g:elm_format_autosave = 1
+
+" Show Elm compiler errors in quickfix list
+
 " Java
 
 ""
@@ -292,8 +438,8 @@ au filetype todo imap <buffer> @ @<C-X><C-O>
   let g:prettier#exec_cmd_path = "~/.npm-global/bin/prettier"
 " let g:prettier#autoformat_config_present = 1
 " let g:prettier#autoformat_config_files = [".prettierrc"]
- let g:prettier#autoformat = 0
- " autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html Prettier
+ let g:prettier#autoformat = 1
+ autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue,*.yaml,*.html Prettier
 " autocmd BufRead *.md let g:prettier#config#prose_wrap = 'always'
 "
 let g:deoplete#enable_at_startup = 0
@@ -302,14 +448,6 @@ let g:deoplete#enable_at_startup = 0
 set rtp+=~/.fzf
 let g:fzf_command_prefix = 'Fzf'
 let g:fzf_preview_window = ['right:60%', 'ctrl-/']
-
-nnoremap <leader>ff :FzfFiles<return>
-nmap <C-P> :FzfFiles!<return>
-nnoremap <leader>fa :FzfAg!<return>
-nnoremap <leader>fr :FzfRg!<return>
-nnoremap <leader>fg :FzfGFiles<return>
-nnoremap <leader>fb :FzfBuffers<return>
-nnoremap <leader>ft :FzfTags<return>
 
 set shortmess=IA
 
@@ -390,15 +528,15 @@ set background=dark
 " colorscheme yin
 " murphy
 " koehler
-" colorscheme paramount
-colorscheme apprentice
+colorscheme paramount
+" colorscheme apprentice
 " colorscheme grb256
 
 """ Switch colorschemes when entering and exiting markdown files
 """ update this whenever changing base scheme:
 """ .... actually don't use this. it seems to break italics.
 "autocmd BufLeave *.md,*.markdown colorscheme grb256
-"autocmd BufEnter,BufRead,BufNewFile *.md,*.markdown colorscheme tender
+" autocmd BufEnter,BufRead,BufNewFile *.md,*.markdown colorscheme tender
 
 highlight ColorColumn ctermbg=236
 set colorcolumn=85 " show right margin
@@ -456,6 +594,8 @@ nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+" nnoremap <leader>ft :FzfTags<return>
+nmap <C-P> <cmd>Telescope find_files<cr>
 
 "
 "
@@ -488,11 +628,11 @@ nnoremap <C-H> <C-W><C-H>
 "" make the C-X C-F menu better
 "" (https://vim.fandom.com/wiki/Make_Vim_completion_popup_menu_work_just_like_in_an_IDE)
 set completeopt=longest,menuone
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
-  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
-  \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+" inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
+"   \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+" inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
+"   \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
 "" toggle to previous buffer
 map <leader>bb <C-^>
@@ -516,6 +656,10 @@ let g:rspec_command = "!bin/rspec {spec}"
 "
 autocmd BufRead,BufNewFile *.hoon set colorcolumn=57,81
 
+autocmd BufRead,BufNewFile *.sire set filetype=rex
+autocmd BufRead,BufNewFile *.rex set filetype=rex
+autocmd BufRead,BufNewFile *.loot set filetype=rex
+
 autocmd BufRead,BufNewFile *.less set filetype=css
 autocmd BufRead,BufNewFile *.less set syntax=css
 autocmd BufRead,BufNewFile *.scss* set filetype=scss.css
@@ -527,13 +671,14 @@ autocmd BufRead,BufNewFile *.ledger,*.journal set syntax=ledger
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set filetype=markdown
 "autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set formatoptions+=a " auto-re-wrap lines. also remember to use `gwap`
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set textwidth=80
+autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn set colorcolumn=70,80
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal syntax=markdown
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal spell
 autocmd BufRead,BufNewFile *.txt,*.md,*.*markdown,*.mdown,*.mkd,*.mkdn setlocal wrap linebreak
 
 let g:markdown_fenced_languages = ['html', 'python', 'ruby', 'vim', 'javascript', 'hoon', 'bash']
 
-" autocmd BufRead,BufNewFile *.md,*.markdown setlocal conceallevel=1
+autocmd BufRead,BufNewFile *.md,*.markdown setlocal conceallevel=1
 autocmd BufRead,BufNewFile todo.txt setlocal nospell
 autocmd BufRead,BufNewFile *.c setlocal tabstop=8
 autocmd BufRead,BufNewFile *.c setlocal shiftwidth=8
@@ -549,46 +694,9 @@ autocmd BufRead,BufNewFile *.die setlocal noswapfile
 
 au FileType xhtml,xml so ~/.vim/bundle/html-autoclosetag.vim
 
-" autocmd FileType go nmap <leader>b :GoBuild<CR>
-" autocmd FileType go nmap <leader>r :GoRun<CR>
-" autocmd FileType go nmap <leader>t :GoTest<CR>
-" autocmd FileType go nmap <leader>s :GoTestFunc<CR>
-" autocmd FileType go nmap <leader>g :GoFmt<CR>
-
-" " let g:go_gopls_enabled = 0
-" " since the above is off, COC will handle these
-" let g:go_gopls_options = ['-remote=auto']
-" let g:go_referrers_mode = 'gopls'
-" let g:go_def_mode='gopls'
-" let g:go_info_mode='gopls'
-" " disable vim-go def mapping so COC can do it
-" let g:go_def_mapping_enabled = 0
-" let g:go_info_mapping_enabled = 0
-" let g:go_referrers_mapping_enabled = 0
-" 
-" let g:go_auto_type_info = 1
-" let g:go_auto_sameids = 1
-" let g:go_fmt_command = "gofmt"
-" set updatetime=100
-
 " F12 re-syncs syntax if it gets screwed up
 noremap <F12> <Esc>:syntax sync fromstart<CR>
 inoremap <F12> <C-o>:syntax sync fromstart<CR>
-
-" vimwiki
-" let wiki_trunk = {}
-" let wiki_trunk.path = '~/Dropbox/wiki/notes'
-" let wiki_trunk.ext = '.md'
-" let wiki_trunk.syntax = 'markdown'
-" let wiki_trunk.links_space_char = '-'
-
-"  let zettel_trunk = {}
-"  let zettel_trunk.path = '~/zettelkasten'
-"  let zettel_trunk.syntax = 'markdown'
-"  let zettel_trunk.ext = '.md'
-"  let zettel_trunk.links_space_char = '-'
-" 
-" let g:vimwiki_list = [wiki_trunk, zettel_trunk]
 
 " " remove the '-' mapping to allow vim vinegar to open:
 " nmap <Nop> <Plug>VimwikiRemoveHeaderLevel
@@ -719,61 +827,14 @@ filetype indent on
 ""hide buffers when not displayed
 set hidden
 
-"Airline theme setup:
-" let g:airline_theme='kalisi'
-" let g:airline_theme='gruvbox'
-" let g:airline_theme='zenburn'
-" let g:airline_theme='tender'
-" let g:airline_theme='raven'
-" let g:airline#extensions#tabline#enabled = 1
-" let g:airline#extensions#tabline#left_sep = ' '
-" let g:airline#extensions#tabline#left_alt_sep = '|'
-" let g:airline_powerline_fonts = 1
-" let g:airline_right_sep = ''
-" let g:airline_left_sep = ''
-" let g:airline#extensions#branch#enabled= 0
+"" User command to index the current notebook.
+" " Create a new note in the directory journal/daily.
+" " nnoremap <leader>zj :ZkNew {"dir": "journal/daily"}<CR>
 " 
-" " let g:airline_theme='distinguished'
-" let g:airline_theme='raven'
-
-lua << END
-require('lualine').setup {
-    options = {
-    icons_enabled = true,
-    theme = 'wombat',
-    component_separators = { left = '', right = ''},
-    section_separators = { left = '', right = ''},
-    disabled_filetypes = {},
-    always_divide_middle = true,
-    globalstatus = false,
-  },
-  sections = {
-    lualine_a = {'mode'},
-    lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = {'filename'},
-    lualine_x = {'encoding', 'fileformat', 'filetype'},
-    lualine_y = {'progress'},
-    lualine_z = {'location'}
-  },
-  inactive_sections = {
-    lualine_a = {},
-    lualine_b = {},
-    lualine_c = {'filename'},
-    lualine_x = {'location'},
-    lualine_y = {},
-    lualine_z = {}
-  },
-  tabline = {},
-  extensions = {}
-}
-END
-
-let g:ale_enabbled = 0
-" let g:ale_linters = {
-" \   'javascript': ['eslint'],
-" \   'typescript': ['tsserver', 'tslint'],
-" \   'vue': ['eslint']
-" \}
+highlight LspDiagnosticsDefaultError ctermfg=red guifg=red
+highlight LspDiagnosticsUnderlineError ctermfg=red guifg=red
+highlight LspDiagnosticsDefaultHint ctermfg=yellow guifg=yellow
+highlight LspDiagnosticsUnderlineHint cterm=none gui=none
 
 " centers the current pane as middle of 4 imaginary columns
 " should be called in a window with a single pane
@@ -920,5 +981,38 @@ nnoremap <Leader>ss [s1z=
 nnoremap <esc> :noh<return><esc>
 nnoremap <esc>^[ <esc>^[
 " This mapping can cause startup problems! https://stackoverflow.com/a/1037182/1923858 
+
+lua << END
+require('lualine').setup {
+    options = {
+    icons_enabled = true,
+    theme = 'wombat',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {},
+    always_divide_middle = true,
+    globalstatus = false,
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
+}
+END
+
 
 endif " for vscode
