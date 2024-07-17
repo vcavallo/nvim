@@ -114,7 +114,7 @@ Plug 'junegunn/fzf'
 call plug#end()            " required
 filetype plugin indent on    " required
 
-set t_Co=256
+" set t_Co=256
 " set termguicolors
 
 " elm
@@ -166,8 +166,8 @@ lspconfig.hoon_ls.setup{}
 lspconfig.marksman.setup{}
 lspconfig.eslint.setup{}
 lspconfig.tsserver.setup{}
-lspconfig.biome.setup{}
-lspconfig.tailwindcss.setup{}
+-- lspconfig.biome.setup{}
+-- lspconfig.tailwindcss.setup{}
 lspconfig.pyright.setup{}
 
 -- Global mappings.
@@ -259,7 +259,7 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 local lspconfig = require('lspconfig')
 
 -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
-local servers = { 'clangd', 'eslint', 'marksman', 'pyright', 'tsserver', 'biome', 'tailwindcss' }
+local servers = { 'clangd', 'eslint', 'marksman', 'pyright', 'tsserver' }
 for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup {
     -- on_attach = my_custom_on_attach,
@@ -511,7 +511,9 @@ set laststatus=2 " 2 line status bar
 set number
 "" syntax on
 syntax enable
-set background=dark
+"
+" set background=dark
+"
 "" colorscheme smyck
 "" colorscheme solarized
 "" colorscheme tender

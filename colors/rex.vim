@@ -1,3 +1,11 @@
+hi clear
+
+if exists("syntax_on")
+  syntax reset
+endif
+
+let colors_name = "rex"
+
 syntax region Curl start="{" end="}" contains=Curl oneline
 
 syntax match BadC /}/
@@ -19,22 +27,37 @@ syntax match Long '\%>80v.\+' containedin=ALL
 syntax match Evil /\s*$/ containedin=ALL
 syntax match Dent /\t/ containedin=ALL
 
-highlight Dent ctermbg=Brown
-highlight BadC ctermbg=Red ctermfg=Blue cterm=bold
-highlight Long ctermbg=Red ctermfg=Blue cterm=bold
-highlight Head ctermfg=Gray cterm=bold
-highlight Evil ctermbg=Brown
-highlight Rune ctermfg=Yellow
-highlight Rine ctermfg=Yellow
-highlight Cnsr ctermfg=DarkRed
-highlight Type ctermfg=Blue
-highlight Numb ctermfg=White
-highlight Cnst ctermfg=White
-highlight Word ctermfg=Green
-highlight Nest ctermfg=Magenta
-highlight Note ctermfg=Gray
-highlight Curl ctermfg=White
-highlight Cord ctermfg=White
-highlight Tape ctermfg=White
-highlight Page ctermfg=White
-highlight Line ctermfg=White
+highlight Normal guifg=NvimLightBlue guibg=#000000
+highlight Dent guibg=NvimDarkGray2
+highlight BadC guibg=NvimDarkGray4 guifg=NvimDarkRed gui=bold
+highlight Long guibg=NvimDarkGray4 guifg=NvimLightGray2 gui=bold
+highlight Head guifg=NvimDarkGray4 gui=bold
+highlight Evil guibg=NvimLightBlue guibg=#000000
+highlight Rune guifg=White guibg=#000000
+highlight Rine guifg=White guibg=#000000
+highlight Cnsr guifg=NvimLightRed guibg=#000000
+highlight Type guifg=NvimDarkCyan guibg=#000000
+highlight Numb guifg=White guibg=#000000
+highlight Cnst guifg=NvimDarkMagenta guibg=#000000
+highlight Word guifg=NvimLightGray4 guibg=#000000
+highlight Nest guifg=NvimDarkCyan guibg=#000000
+highlight Note guifg=NvimDarkGray3 guibg=#000000
+highlight Curl guifg=NvimLightCyan guibg=#000000
+highlight Cord guifg=NvimLightCyan guibg=#000000
+highlight Tape guifg=NvimLightCyan guibg=#000000
+highlight Page guifg=NvimLightCyan guibg=#000000
+highlight Line guifg=NvimLightCyan guibg=#000000
+
+"            NvimDarkBlue    NvimLightBlue
+"            NvimDarkCyan    NvimLightCyan
+"            NvimDarkGray1   NvimLightGray1
+"            NvimDarkGray2   NvimLightGray2
+"            NvimDarkGray3   NvimLightGray3
+"            NvimDarkGray4   NvimLightGray4
+"            NvimDarkGreen   NvimLightGreen
+"            NvimDarkMagenta NvimLightMagenta
+"            NvimDarkRed     NvimLightRed
+"            NvimDarkYellow  NvimLightYellow
+"
+
+set background=dark
