@@ -117,6 +117,9 @@ Plug 'MunifTanjim/nui.nvim'
 Plug 'VonHeikemen/fine-cmdline.nvim'
 Plug 'epwalsh/obsidian.nvim'
 
+Plug 'mfussenegger/nvim-dap'
+Plug 'mrcjkb/rustaceanvim'
+
 call plug#end()            " required
 filetype plugin indent on    " required
 
